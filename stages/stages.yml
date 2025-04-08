@@ -1,0 +1,38 @@
+trigger:
+- develop
+
+pool:
+  vmImage: ubuntu-latest
+  
+stages:
+- stage: DeployLambda
+  displayName: 'Deploy Lambda Function'
+  jobs:
+  - job: LambdaDeploy
+    displayName: 'Build & Deploy Lambda'
+    steps:
+    - bash: pwd 
+    - script: ls
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(Build.SourcesDirectory)/$(LambdaFolderName)'
+        includeRootFolder: true
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(LambdaFolderName).zip'
+        replaceExistingArchive: true
+    - task: LambdaDeployFunction@1
+      inputs:
+        awsCredentials: 'AWS-Test-Pipeline'
+        regionName: ''
+        deploymentMode: 'codeonly'
+        functionName: '$(LambdaFunctionName)'
+        codeLocation: 'localfile'
+        localZipFile: '$(Build.ArtifactStagingDirectory)/$(LambdaFolderName).zip'
+        
+- stage: DeployStepFunction
+  displayName: 'Deploy Step Function'
+  jobs:
+  - job: StepFunctionDeploy
+    displayName: 'Deploy Step Function'
+    steps:
+      - script: echo "Deploying"
