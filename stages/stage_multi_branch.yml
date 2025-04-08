@@ -1,0 +1,14 @@
+stages:
+- stage: DeployDev
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+  jobs:
+  - job: Deploy
+    steps:
+    - script: ./deploy.sh dev
+
+- stage: DeployProd
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  jobs:
+  - job: Deploy
+    steps:
+    - script: ./deploy.sh prod

@@ -1,0 +1,28 @@
+stages:
+- stage: Build
+  displayName: 'Build App'
+  jobs:
+  - job: BuildApp
+    steps:
+    - script: npm install
+    - script: npm run build
+
+- stage: Test
+  displayName: 'Run Tests'
+  dependsOn: Build
+  jobs:
+  - job: UnitTests
+    steps:
+    - script: npm run test:unit
+  - job: IntegrationTests
+    steps:
+    - script: npm run test:integration
+
+- stage: Deploy
+  displayName: 'Deploy to AWS Lambda'
+  dependsOn: Test
+  condition: succeeded()
+  jobs:
+  - job: DeployLambda
+    steps:
+    - task: LambdaDeployFunction@1

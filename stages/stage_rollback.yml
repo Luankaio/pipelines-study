@@ -1,0 +1,14 @@
+stages:
+- stage: Deploy
+  jobs:
+  - job: DeployLambda
+    steps:
+    - script: ./deploy-lambda.sh
+
+- stage: Rollback
+  dependsOn: Deploy
+  condition: failed('Deploy')
+  jobs:
+  - job: Revert
+    steps:
+    - script: ./rollback-to-previous.sh
